@@ -1,0 +1,17 @@
+/*
+ * main.c
+ *
+ *  Created on: Jul 31, 2023
+ *      Author: setfr
+ */
+
+
+#include <avr/io.h>
+
+int main(void)
+{
+	DDRA=0xff;
+	PORTA=0xff;
+	while(1){}
+	return 0;
+}

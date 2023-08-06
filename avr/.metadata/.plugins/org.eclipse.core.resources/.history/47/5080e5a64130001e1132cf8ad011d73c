@@ -1,0 +1,24 @@
+/*
+ * main.c
+ *
+ *  Created on: Jul 31, 2023
+ *      Author: setfr
+ */
+#include <util/delay.h>
+
+
+#include <avr/io.h>
+
+int main(void)
+{
+	DDRA=0xff; //set to one to be ouput
+
+	while(1)
+	{
+
+		PORTA=0xff; // set to one to be high
+		  _delay_ms(100);
+		  PORTA=0x00;
+	}
+	return 0;
+}

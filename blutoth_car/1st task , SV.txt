@@ -1,0 +1,98 @@
+// Define the pins for the motor and servo
+int motorPin = 13;
+int servoPin = 9;
+int ultrasonicPin = 10;
+int lineFollowerPins[] = {2, 3, 4, 5};
+
+// Initialize the Bluetooth module
+void setup() {
+  Serial.begin(9600);
+  pinMode(motorPin, OUTPUT);
+  pinMode(servoPin, OUTPUT);
+  pinMode(ultrasonicPin, INPUT);
+  for (int i = 0; i < 4; i++) {
+    pinMode(lineFollowerPins[i], INPUT);
+  }
+}
+
+// Loop forever, reading commands from the Bluetooth module and controlling the car
+void loop() {
+  // Check if there is a command from the Bluetooth module
+  if (Serial.available()) {
+    char command = Serial.read();
+    switch (command) {
+      case 'F': // Move forward
+        digitalWrite(motorPin, HIGH);
+        break;
+      case 'B': // Move backward
+        digitalWrite(motorPin, LOW);
+        break;
+      case 'L': // Turn left
+        servo.write(90);
+        break;
+      case 'R': // Turn right
+        servo.write(180);
+        break;
+      case 'O': // Obstacle avoidance mode
+        obstacleAvoidance();
+        break;
+      case 'L': // Line follower mode
+        lineFollower();
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+// Obstacle avoidance mode
+void obstacleAvoidance() {
+  int distance = getUltrasonicDistance();
+  if (distance < 10) {
+    turnLeft();
+  } else {
+    moveForward();
+  }
+}
+
+// Line follower mode
+void lineFollower() {
+  int sensorValues[] = {digitalRead(lineFollowerPins[0]),
+                       digitalRead(lineFollowerPins[1]),
+                       digitalRead(lineFollowerPins[2]),
+                       digitalRead(lineFollowerPins[3])};
+  int direction = getDirection(sensorValues);
+  switch (direction) {
+    case 0: // Turn left
+      turnLeft();
+      break;
+    case 1: // Go straight
+      moveForward();
+      break;
+    case 2: // Turn right
+      turnRight();
+      break;
+  }
+}
+
+// Get the ultrasonic distance
+int getUltrasonicDistance() {
+  int duration = pulseIn(ultrasonicPin, HIGH);
+  int distance = duration * 0.034 / 2;
+  return distance;
+}
+
+// Get the direction of the line follower
+int getDirection(int sensorValues[]) {
+  int sum = 0;
+  for (int i = 0; i < 4; i++) {
+    sum += sensorValues[i];
+  }
+  if (sum > 2) {
+    return 1; // Go straight
+  } else if (sum < 2) {
+    return 0; // Turn
+  } else {
+    return -1; // Stop
+  }
+}
